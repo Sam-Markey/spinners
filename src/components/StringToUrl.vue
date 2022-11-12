@@ -13,30 +13,36 @@
 <script setup lang="ts">
 import { ref } from "vue";
 
-const shortURL = /^([a-zA-Z0-9]+(\.[a-zA-Z0-9]+)+.*)$/;
-const normalUrl = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
-const searchHTMlTag = /(<|>)/;
 const convertedString = ref("");
 const searchInput = ref("");
 
 function convertInput(): void {
-  const searchForHTMlTags = searchInput.value.split(" ").join("");
-  if (!searchForHTMlTags.match(searchHTMlTag)) {
-    const splitStringArray = searchInput.value.split(" ");
+  convertedString.value = stringToLink(searchInput.value);
+}
 
-    const convertedArray = splitStringArray.map((url) => {
+function stringToLink(text: string): string {
+  const shortURL: RegExp = /^([a-zA-Z0-9]+(\.[a-zA-Z0-9]+)+.*)$/;
+  const normalUrl: RegExp =
+    /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
+  const searchHTMlTag: RegExp = /(<|>)/;
+  let editedString: string = "invalid characters please remove < and or >";
+  const searchForHTMlTags: string = text.split(" ").join("");
+  if (!searchForHTMlTags.match(searchHTMlTag)) {
+    const splitStringArray: string[] = text.split(" ");
+    const convertedArray: string[] = splitStringArray.map((url) => {
       if (url.match(shortURL)) {
         return `<a href="https://${url}" target="_blank" >${url}</a>`;
       } else if (url.match(normalUrl)) {
-        return `<a href="${url}" target="_blank" >${url}</a>`;
+        const urlText = url.replace("https://", "").replace("http://", "");
+        return `<a href="${url}" target="_blank" >${urlText}</a>`;
       }
       return url;
     });
 
-    convertedString.value = convertedArray.join(" ");
-  } else {
-    convertedString.value = "invalid characters please remove < and >";
+    editedString = convertedArray.join(" ");
   }
+
+  return editedString;
 }
 </script>
 
